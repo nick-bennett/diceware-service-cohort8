@@ -32,3 +32,6 @@ build/
 
 /passphrase_db
 derby.log
+
+.floo
+.flooignore
