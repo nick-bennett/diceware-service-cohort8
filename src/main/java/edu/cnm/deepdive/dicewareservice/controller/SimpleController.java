@@ -3,6 +3,7 @@ package edu.cnm.deepdive.dicewareservice.controller;
 import edu.cnm.deepdive.dicewareservice.service.PassphraseGenerator;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +18,7 @@ public class SimpleController {
 
   private final PassphraseGenerator generator;
 
+  @Autowired
   public SimpleController(PassphraseGenerator generator) {
     this.generator = generator;
   }

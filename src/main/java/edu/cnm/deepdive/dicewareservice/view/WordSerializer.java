@@ -33,6 +33,7 @@ public class WordSerializer {
       word.setWord(jsonParser.readValueAs(String.class));
       return word;
     }
+
   }
 
 }
