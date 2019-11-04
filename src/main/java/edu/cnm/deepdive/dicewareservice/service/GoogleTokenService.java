@@ -6,6 +6,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import edu.cnm.deepdive.dicewareservice.model.entity.User;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collection;
@@ -29,10 +30,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class GoogleTokenService implements ResourceServerTokenServices {
 
-  @Value("${oauth.clientId}")
-  private String clientId;
-
   private final AccessTokenConverter converter = new DefaultAccessTokenConverter();
+  private final String clientId;
+  private final UserService userService;
+
+  public GoogleTokenService(@Value("${oauth.clientId}") String clientId,
+      UserService userService) {
+    this.clientId = clientId;
+    this.userService = userService;
+  }
 
   @Override
   public OAuth2Authentication loadAuthentication(String token)
@@ -46,11 +52,11 @@ public class GoogleTokenService implements ResourceServerTokenServices {
       GoogleIdToken idToken = verifier.verify(token);
       if (idToken != null) {
         Payload payload = idToken.getPayload();
-        // TODO Check user registry (if any) for roles, restrictions, etc.
+        User user = userService.getOrCreateUser(payload.getSubject());
         Collection<GrantedAuthority> grants =
             Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
         Authentication base =
-            new UsernamePasswordAuthenticationToken(payload.getSubject(), token, grants);
+            new UsernamePasswordAuthenticationToken(user, token, grants);
         OAuth2Request request = converter.extractAuthentication(payload).getOAuth2Request();
         return new OAuth2Authentication(request, base);
       } else {
